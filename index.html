@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Personalidad</title>
+    <link rel="stylesheet" href="styles.css">
+    <script async defer src="https://accounts.google.com/gsi/client"></script>
+</head>
+<body>
+
+    <!-- ====== PANTALLA 1: PORTADA ====== -->
+    <div id="pantalla-portada" class="pantalla activa">
+        <div class="contenedor">
+            <div class="logo-container">
+                <img src="logo.png" alt="Logo" class="logo">
+            </div>
+            <h1>🧠 Test de Personalidad</h1>
+            <p class="subtitulo">Descubre tu tipo de personalidad</p>
+            <p class="descripcion">Responde 15 preguntas sinceras y obtén un análisis completo de tu perfil psicológico.</p>
+
+            <button class="boton-azul boton-grande" onclick="irALogin()">Continuar</button>
+        </div>
+    </div>
+
+    <!-- ====== PANTALLA 2: LOGIN CON GOOGLE ====== -->
+    <div id="pantalla-login" class="pantalla">
+        <div class="contenedor">
+            <div class="logo-container">
+                <img src="logo.png" alt="Logo" class="logo" style="width: 180px; height: 180px;">
+            </div>
+            <h2>Inicia Sesión</h2>
+            <p>Con tu cuenta de Google</p>
+            
+            <div id="google-button" class="google-button-container"></div>
+            
+            <p class="security-info">🔒 Accede con Google de forma segura. Protegemos tu información y solo usamos lo necesario para mejorar tu experiencia</p>
+            
+            <button class="boton-back" onclick="irAPortada()">← Atrás</button>
+        </div>
+    </div>
+
+    <!-- ====== MODAL: NOMBRE DEL USUARIO ====== -->
+    <div id="modal-nombre" class="modal">
+        <div class="modal-content">
+            <h3>¿Cuál es tu nombre?</h3>
+            <p>Necesitamos tu nombre completo para el pago</p>
+            <input type="text" id="input-nombre-modal" placeholder="Ej: Juan Pérez García">
+            <div class="modal-botones">
+                <button class="boton-azul" onclick="guardarNombre()">Continuar</button>
+                <button class="boton-gris" onclick="cerrarModalNombre()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== PANTALLA 3: INSTRUCCIONES DEL TEST ====== -->
+    <div id="pantalla-instrucciones" class="pantalla">
+        <div class="contenedor">
+            <div class="header-instrucciones">
+                <h2>Estamos Listos</h2>
+                <p class="paso">Paso 1 de 2</p>
+            </div>
+
+            <div class="instrucciones-box">
+                <h3>📋 Instrucciones del Test</h3>
+                
+                <div class="instruccion-item">
+                    <span class="numero">1</span>
+                    <p>Responde <strong>15 preguntas</strong> con sinceridad</p>
+                </div>
+
+                <div class="instruccion-item">
+                    <span class="numero">2</span>
+                    <p>Usa la escala: <strong>1 (Desacuerdo) a 4 (Acuerdo)</strong></p>
+                </div>
+
+                <div class="instruccion-item">
+                    <span class="numero">3</span>
+                    <p>No hay respuestas correctas o incorrectas</p>
+                </div>
+
+                <div class="instruccion-item">
+                    <span class="numero">4</span>
+                    <p>Tu resultado aparecerá <strong>al finalizar</strong></p>
+                </div>
+            </div>
+
+            <div class="video-tutorial">
+                <h4>📹 Tutorial en Video:</h4>
+                <div class="video-placeholder">
+                    <p>Coloca tu video de YouTube aquí</p>
+                </div>
+            </div>
+
+            <button class="boton-azul boton-grande" onclick="irAlFormulario()">Comenzar Test</button>
+            <button class="boton-gris" onclick="logout()">Cambiar Cuenta</button>
+        </div>
+    </div>
+
+    <!-- ====== PANTALLA 4: PAGO ====== -->
+    <div id="pantalla-pago" class="pantalla">
+        <div class="contenedor">
+            <div class="header-pago">
+                <h2>Desbloquea tus Resultados</h2>
+                <p class="paso">Paso 2 de 2</p>
+            </div>
+            <p>Realiza un pago seguro para ver tu análisis completo</p>
+
+            <div class="pago-container">
+                <div class="pago-qr">
+                    <h3>Escanea con Yape</h3>
+                    <img src="qr-yape.png" alt="QR Yape" class="qr-code">
+                </div>
+
+                <div class="pago-info">
+                    <div class="info-item">
+                        <span class="label">📱 Número:</span>
+                        <span class="valor">+51 983 142 822</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">💰 Monto:</span>
+                        <span class="valor">S/. 2.00</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">👤 Nombre:</span>
+                        <span class="valor" id="nombre-pago"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">📧 Email:</span>
+                        <span class="valor" id="email-pago"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="espera-pago">
+                <p>⏱️ El administrador verifica pagos manualmente. Intenta en 5-10 minutos.</p>
+            </div>
+
+            <button class="boton-azul" onclick="verificarPago()">📧 Verifica tu correo</button>
+            <button class="boton-gris" onclick="logout()">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- ====== PANTALLA 5: RESULTADOS ====== -->
+    <div id="pantalla-resultados" class="pantalla">
+        <div class="contenedor">
+            <div class="header-resultados">
+                <h2>🎉 Tus Resultados</h2>
+                <button class="boton-logout" onclick="logout()">Cerrar Sesión</button>
+            </div>
+
+            <div class="tarjeta-resultado">
+                <h3 id="tipo-personalidad" class="tipo"></h3>
+                <p id="descripcion-resultado" class="descripcion"></p>
+            </div>
+
+            <div class="puntaje-container">
+                <div class="puntaje-circle">
+                    <span class="puntaje-valor" id="puntaje-total">0</span>
+                    <span class="puntaje-label">/60</span>
+                </div>
+            </div>
+
+            <div class="respuestas-container">
+                <h3>📊 Detalle de Respuestas</h3>
+                <div id="detalle-respuestas" class="detalle-respuestas"></div>
+            </div>
+
+            <div class="acciones-resultado">
+                <button class="boton-azul" onclick="descargarPDF()">📥 Descargar PDF</button>
+                <button class="boton-gris" onclick="compartirResultado()">📤 Compartir</button>
+                <button class="boton-gris" onclick="repetirTest()">🔄 Repetir Test</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ====== NOTIFICACIONES ====== -->
+    <div id="notificacion" class="notificacion"></div>
+
+    <!-- ====== SPINNER ====== -->
+    <div id="spinner" class="spinner">
+        <div class="spinner-circle"></div>
+        <p>Procesando...</p>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
