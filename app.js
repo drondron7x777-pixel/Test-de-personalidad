@@ -4,7 +4,7 @@
 
 const GOOGLE_CLIENT_ID = '146633258411-eeofj09ibpegkkt05spuasng9ehd8oc1.apps.googleusercontent.com';
 const GOOGLE_FORMS_URL = 'https://forms.gle/JUcApe71bW88FaUYA';
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz9C9n-hVdWvvq9egutofYr-4WxBTYPI6Jlp7ZtJfL71gjyZPwu4_JGOD0-ya1_dJoJ';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyrPUJ9w_ApeLgR67qD8ci9wLMNKO847hpp9quK8cILeuFrUUc7iWUkJDr0gx5x0aVczg/exec';
 const TU_EMAIL = 'drondron7x7@gmail.com'; // Email para PDFs
 
 // Variables globales
@@ -43,8 +43,7 @@ function inicializarApp() {
         } else if (usuarioActual.nombre) {
             cambiarPantalla('instrucciones');
         } else {
-            // Si tiene email pero no nombre, mostrar modal
-            mostrarModalNombre();
+            cambiarPantalla('instrucciones');
         }
         return;
     }
@@ -84,18 +83,7 @@ function irALogin() {
 }
 
 function irAlFormulario() {
-    if (!usuarioActual || !usuarioActual.nombre) {
-        mostrarNotificacion('Por favor completa tus datos primero', 'error');
-        return;
-    }
-
-    var email = encodeURIComponent(usuarioActual.email);
-    var nombre = encodeURIComponent(usuarioActual.nombre);
-    
     var urlFormulario = GOOGLE_FORMS_URL;
-    urlFormulario += '?usp=pp_url';
-    urlFormulario += '&entry.123456=' + email;      // CAMBIA 123456 por tu ID de campo
-    urlFormulario += '&entry.234567=' + nombre;     // CAMBIA 234567 por tu ID de campo
     
     console.log('🔗 Abriendo formulario...');
     
@@ -150,7 +138,7 @@ function procesarLoginGoogle(response) {
         
         usuarioActual = {
             email: datosGoogle.email,
-            nombre: null,
+            nombre: datosGoogle.name || null,
             foto: datosGoogle.picture,
             loginFecha: new Date().toISOString(),
             pagado: false,
@@ -161,8 +149,8 @@ function procesarLoginGoogle(response) {
         localStorage.setItem('usuarioActual', JSON.stringify(usuarioActual));
         console.log('✅ Login exitoso:', usuarioActual.email);
         
-        // Mostrar modal para nombre
-        mostrarModalNombre();
+        // Ir directamente a instrucciones
+        cambiarPantalla('instrucciones');
         
     } catch (error) {
         console.error('❌ Error procesando login:', error);
@@ -182,39 +170,6 @@ function decodificarToken(token) {
             .join('')
     );
     return JSON.parse(jsonPayload);
-}
-
-// ====================================
-// 📝 MODAL NOMBRE
-// ====================================
-
-function mostrarModalNombre() {
-    document.getElementById('input-nombre-modal').value = '';
-    document.getElementById('modal-nombre').classList.add('activo');
-}
-
-function cerrarModalNombre() {
-    document.getElementById('modal-nombre').classList.remove('activo');
-    logout();
-}
-
-function guardarNombre() {
-    var nombre = document.getElementById('input-nombre-modal').value.trim();
-    
-    if (nombre === '' || nombre.length < 3) {
-        mostrarNotificacion('Por favor ingresa un nombre válido (mínimo 3 caracteres)', 'error');
-        return;
-    }
-    
-    usuarioActual.nombre = nombre;
-    usuarioActual.fechaRegistro = new Date().toISOString();
-    
-    localStorage.setItem('usuarioActual', JSON.stringify(usuarioActual));
-    
-    console.log('✅ Nombre guardado:', usuarioActual.nombre);
-    
-    document.getElementById('modal-nombre').classList.remove('activo');
-    cambiarPantalla('instrucciones');
 }
 
 // ====================================
@@ -265,49 +220,9 @@ function verificarPago() {
         return;
     }
 
-    console.log('💰 Verificando pago para:', usuarioActual.email);
-    
-    mostrarSpinner(true);
-    
-    var payload = {
-        action: 'verificarPago',
-        email: usuarioActual.email
-    };
-    
-    fetch(APPS_SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    })
-    .then(response => response.json())
-    .then(result => {
-        mostrarSpinner(false);
-        if (result.pagado) {
-            usuarioActual.pagado = true;
-            usuarioActual.puntaje = result.puntaje || 0;
-            usuarioActual.tipoPersonalidad = result.tipoPersonalidad;
-            usuarioActual.descripcion = result.descripcion;
-            usuarioActual.respuestas = result.respuestas || [];
-            
-            localStorage.setItem('usuarioActual', JSON.stringify(usuarioActual));
-            
-            mostrarNotificacion('✅ ¡Pago verificado!', 'success');
-            
-            setTimeout(() => {
-                cambiarPantalla('resultados');
-                mostrarResultados();
-            }, 1500);
-        } else {
-            mostrarNotificacion('Pago no verificado aún. Intenta en 2 minutos', 'warning');
-        }
-    })
-    .catch(error => {
-        mostrarSpinner(false);
-        console.error('Error:', error);
-        mostrarNotificacion('Error verificando pago', 'error');
-    });
+    // Abrir Gmail directamente
+    window.open('https://mail.google.com/mail/u/0/?tab=rm&ogbl#inbox', '_blank');
 }
-
 // ====================================
 // 📊 MOSTRAR RESULTADOS
 // ====================================
@@ -362,8 +277,7 @@ function descargarPDF() {
         tipoPersonalidad: usuarioActual.tipoPersonalidad,
         descripcion: usuarioActual.descripcion,
         puntaje: usuarioActual.puntaje,
-        respuestas: usuarioActual.respuestas,
-        emailDestino: TU_EMAIL // Enviar a tu email
+        respuestas: usuarioActual.respuestas
     };
     
     fetch(APPS_SCRIPT_URL, {
