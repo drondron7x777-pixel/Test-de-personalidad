@@ -3,7 +3,7 @@
 // ====================================
 
 const GOOGLE_CLIENT_ID = '146633258411-eeofj09ibpegkkt05spuasng9ehd8oc1.apps.googleusercontent.com';
-const GOOGLE_FORMS_URL = 'https://forms.gle/JUcApe71bW88FaUYA';
+const GOOGLE_FORMS_URL = 'https://docs.google.com/forms/u/0/d/e/1FAIpQLSeZUPCn0t97y-qTnDuVZOvqIy4CjeFT7jIQxl1wq1QLv31VAQ/formResponse';
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyrPUJ9w_ApeLgR67qD8ci9wLMNKO847hpp9quK8cILeuFrUUc7iWUkJDr0gx5x0aVczg/exec';
 const TU_EMAIL = 'drondron7x7@gmail.com'; // Email para PDFs
 
@@ -40,8 +40,6 @@ function inicializarApp() {
         if (usuarioActual.pagado && usuarioActual.puntaje) {
             cambiarPantalla('resultados');
             mostrarResultados();
-        } else if (usuarioActual.nombre) {
-            cambiarPantalla('instrucciones');
         } else {
             cambiarPantalla('instrucciones');
         }
@@ -83,9 +81,17 @@ function irALogin() {
 }
 
 function irAlFormulario() {
-    var urlFormulario = GOOGLE_FORMS_URL;
+    if (!usuarioActual || !usuarioActual.email) {
+        mostrarNotificacion('Por favor completa tus datos primero', 'error');
+        return;
+    }
+
+    // Construir URL del formulario con el correo pre-rellenado
+    var urlFormulario = GOOGLE_FORMS_URL + 
+        '?usp=pp_url' +
+        '&entry.1436364532=' + encodeURIComponent(usuarioActual.email);
     
-    console.log('🔗 Abriendo formulario...');
+    console.log('🔗 Abriendo formulario con email:', usuarioActual.email);
     
     // Marcar que el usuario va a completar el formulario
     localStorage.setItem('formularioCompletado', 'true');
@@ -220,9 +226,12 @@ function verificarPago() {
         return;
     }
 
+    console.log('📧 Abriendo Gmail...');
+    
     // Abrir Gmail directamente
     window.open('https://mail.google.com/mail/u/0/?tab=rm&ogbl#inbox', '_blank');
 }
+
 // ====================================
 // 📊 MOSTRAR RESULTADOS
 // ====================================
